@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Type Ahead 👀</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="https://fav.farm/🔥" />
+  </head>
+  <body>
+    <form class="search-form">
+      <input type="text" class="search" placeholder="City or State" />
+      <ul class="suggestions">
+        <li>Filter for a city</li>
+        <li>or a state</li>
+      </ul>
+    </form>
+    <script>
+      const endpoint =
+        "https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json";
+      const cities = [];
+      fetch(endpoint)
+        .then((response) => response.json())
+        .then((data) => {
+          cities.push(...data);
+          console.log("Cities data loaded:", cities.length, "cities");
+        })
+        .catch((err) => console.error("Error fetching cities:", err));
+      function displayMatched(userInput, cities) {
+        return cities.filter((place) => {
+          const regex = new RegExp(userInput, "gi");
+          return place.city.match(regex) || place.state.match(regex);
+        });
+      }
+
+      const searchedInput = document.querySelector(".search");
+      var suggestions = document.querySelector(".suggestions");
+
+      searchedInput.addEventListener("input", function (e) {
+        const value = e.target.value.trim();
+        if (!value) {
+          suggestions.innerHTML = "";
+          return;
+        }
+        // Check if cities data has loaded (array has items)
+        if (cities.length === 0) {
+          console.log("Cities data is still loading...");
+          return;
+        }
+        const matches = displayMatched(value.trim(), cities);
+        console.log("Matches:", matches);
+        const html = matches
+          .map((place) => {
+            const city = place.city;
+            const state = place.state;
+            return `<li><span class = "name">${city}, ${state}</span></li>`;
+          })
+          .join("");
+
+        suggestions.innerHTML = html || "<li>No matches</li>";
+      });
+    </script>
+  </body>
+</html>
